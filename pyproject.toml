@@ -1,0 +1,21 @@
+[project]
+name = "smediabot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain>=0.3.25",
+    "langchain-community>=0.3.21",
+    "langchain-core>=0.3.65",
+    "langchain-ollama>=0.3.3",
+    "langchain-postgres>=0.0.14",
+    "langchain-tavily>=0.2.3",
+    "langgraph>=0.4.8",
+    "langgraph-checkpoint-postgres>=2.0.21",
+    "load-dotenv>=0.1.0",
+    "psycopg>=3.2.9",
+    "psycopg2-binary>=2.9.10",
+    "tavily-python>=0.7.7",
+    "typing>=3.10.0.0",
+]
