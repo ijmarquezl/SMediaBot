@@ -934,6 +934,20 @@ wheels = [
 ]
 
 [[package]]
+name = "langchain-openai"
+version = "0.3.24"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "langchain-core" },
+    { name = "openai" },
+    { name = "tiktoken" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/da/e1/7be9384c5cb6fd6d0466ac6e781e44c3d80081c624faa7a9d2f8bf3a59ba/langchain_openai-0.3.24.tar.gz", hash = "sha256:cec1ab4ce7a8680af1eb11427b4384d2ceb46e9b20ff3f7beb0b0d83cab61a97", size = 687773 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fc/9b/b8f86d78dbc651decd684ab938a1340e1ad3ba1dbcef805e12db65dee0ba/langchain_openai-0.3.24-py3-none-any.whl", hash = "sha256:3db7bb2964f86636276a8f4bbed4514daf13865b80896e547ff7ea13ce98e593", size = 68950 },
+]
+
+[[package]]
 name = "langchain-postgres"
 version = "0.0.14"
 source = { registry = "https://pypi.org/simple" }
@@ -1888,6 +1902,7 @@ dependencies = [
     { name = "langchain-community", version = "0.3.25", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
     { name = "langchain-core" },
     { name = "langchain-ollama" },
+    { name = "langchain-openai" },
     { name = "langchain-postgres" },
     { name = "langchain-tavily" },
     { name = "langgraph" },
@@ -1908,6 +1923,7 @@ requires-dist = [
     { name = "langchain-community", specifier = ">=0.3.21" },
     { name = "langchain-core", specifier = ">=0.3.65" },
     { name = "langchain-ollama", specifier = ">=0.3.3" },
+    { name = "langchain-openai", specifier = ">=0.3.24" },
     { name = "langchain-postgres", specifier = ">=0.0.14" },
     { name = "langchain-tavily", specifier = ">=0.2.3" },
     { name = "langgraph", specifier = ">=0.4.8" },
