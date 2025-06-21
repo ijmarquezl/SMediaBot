@@ -107,31 +107,66 @@ def tool_node(state: AgentState):
             tool_results.append(ToolMessage(tool_call_id=tool_call["id"], content=f"Lo siento, no puedo ejecutar la herramienta {tool_name}."))
     return {"messages": tool_results}
 
-# Definir un router para dirigir el flujo
-def should_continue(state: AgentState) -> str:
+def generar_blog_post(state: AgentState):
+    """Genera un borrador de una entrada de blog basado en el tema."""
+    tema = ""
+    # Intentar extraer el tema de la última pregunta del usuario
+    for message in reversed(state["messages"]):
+        if isinstance(message, HumanMessage):
+            tema = message.content
+            break
+    else:
+        return {"messages": [AIMessage(content="No se detectó un tema claro para la entrada del blog.")]}
+
+    prompt_blog = ChatPromptTemplate.from_messages([
+        SystemMessage(content="""Eres un escritor experto en la creación de entradas de blog atractivas e informativas. 
+        Basándote en el siguiente tema, genera un borrador completo de una entrada de blog. 
+        Incluye un título atractivo, una introducción, varios puntos principales desarrollados y una conclusión.
+        El borrador debe estar listo para ser revisado y publicado en un blog de WordPress.
+        Intenta mantener un tono [aquí podríamos especificar un tono, como informativo, amigable, etc., dependiendo de tu preferencia]."""),
+        HumanMessage(content=f"El tema para la entrada del blog es: {tema}"),
+    ])
+
+    chain = prompt_blog | llm
+    response = chain.invoke({"tema": tema})
+
+    return {"messages": [response]}
+
+def route_from_chat(state: AgentState) -> str:
     last_message = state["messages"][-1]
-    # Si el ultimo mensaje es del LLM y tiene llamadas a herramientas, ir al nodo de herramientas.
+    
+    # 1. ¿El LLM hizo una llamada a herramientas? (prioridad alta para seguir el flujo de búsqueda)
     if isinstance(last_message, AIMessage) and last_message.tool_calls:
         return "call_tool"
-    # S no, significa que el LLM ha terminado de responder
+    
+    # 2. ¿El usuario pidió generar un blog? (buscar un HumanMessage para esto)
+    # Es importante buscar en el HumanMessage, ya que la petición de blog viene del usuario.
+    for message in reversed(state["messages"]):
+        if isinstance(message, HumanMessage) and "generar blog" in message.content.lower():
+            return "generar_blog"
+    
+    # 3. Si no hay llamadas a herramientas ni una petición de blog, el LLM ha terminado de responder.
     return END
 
 # Describir el grafo
 workflow.add_node("chat", chat_node)
 workflow.add_node("call_tool", tool_node)
+workflow.add_node("generar_blog", generar_blog_post)
 workflow.add_edge(START, "chat")
 # despues del nodo chat, la decision es condicional
 workflow.add_conditional_edges(
     "chat",
-    should_continue,
+    route_from_chat, # Usamos la nueva función unificada
     {
         "call_tool": "call_tool",
+        "generar_blog": "generar_blog",
         END: END
     }
 )
 
 # Despues de ejecutar una herramienta, volver al chat para que el LLM procese el resultado
 workflow.add_edge("call_tool", "chat")
+workflow.add_edge("generar_blog", END) # Ahora sí, después de tool_call -> chat
 
 # Configurar el checkpointer con PostgreSQL
 # _checkpointer_instance = PostgresSaver.from_conn_string(DB_URI)
